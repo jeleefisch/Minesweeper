@@ -11,7 +11,11 @@ export default function useLocalStorage(key, initialValue) {
   })
 
   useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(value))
+    try {
+      localStorage.setItem(key, JSON.stringify(value))
+    } catch {
+      // Storage can be unavailable in private or restricted browser contexts.
+    }
   }, [key, value])
 
   return [value, setValue]

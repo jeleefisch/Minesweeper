@@ -1,5 +1,14 @@
 const key = 'minesweeper-leaderboard'
-export const getScores = () => JSON.parse(localStorage.getItem(key) || '{"beginner":[],"intermediate":[],"expert":[]}')
+const emptyScores = { beginner: [], intermediate: [], expert: [] }
+export const getScores = () => {
+  try {
+    const stored = localStorage.getItem(key)
+    const parsed = stored ? JSON.parse(stored) : emptyScores
+    return parsed && typeof parsed === 'object' ? { ...emptyScores, ...parsed } : emptyScores
+  } catch {
+    return emptyScores
+  }
+}
 export const addScore = (difficulty, score) => {
   const current = getScores()
   current[difficulty] = [...(current[difficulty] || []), score].sort((a, b) => a.time - b.time || new Date(a.date) - new Date(b.date)).slice(0, 10)
