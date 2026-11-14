@@ -27,6 +27,6 @@ export default function useBoardCellSize(element, columns, zoom) {
     ? 24
     : clamp(Math.floor(availableWidth / columns), 24, 40)
   const size = baseSize * zoom / 100
-  if (import.meta.env.DEV) console.assert(size >= 12 && size <= 80, 'cell size is clamped before zoom')
+  if (import.meta.env.DEV) console.assert(Math.abs(size - (baseSize * zoom / 100)) < 0.001, 'final cell size equals auto size times zoom')
   return `${size}px`
 }

@@ -1,4 +1,4 @@
-import { Hint, QuickFlag, Trophy, Volume, VolumeOff } from './icons/Icons'
+import { Hint, Moon, QuickFlag, Sun, Trophy, Volume, VolumeOff } from './icons/Icons'
 import FaceCool from './icons/FaceCool'
 import FaceDead from './icons/FaceDead'
 import FaceHappy from './icons/FaceHappy'
@@ -6,7 +6,7 @@ import FaceHappy from './icons/FaceHappy'
 export default function Header({
   flags, mines, time, status, bestTime, onRestart, muted, onToggleMute,
   noGuess, onToggleNoGuess, noGuessWarning, generationMessage, quickFlag,
-  onToggleQuickFlag, hints, onHint, hintMessage, onLeaderboard,
+  onToggleQuickFlag, hints, onHint, hintMessage, onLeaderboard, mode, onToggleMode,
 }) {
   const face = status === 'won' ? <FaceCool label="Won" /> : status === 'lost' ? <FaceDead label="Lost" /> : <FaceHappy label="Playing" />
   return (
@@ -15,6 +15,7 @@ export default function Header({
       <button className="restart" onClick={onRestart} title="Restart" aria-label="Restart">{face}</button>
       <div className="counter"><span>TIME</span><strong>{String(time).padStart(3, '0')}</strong></div>
       <div className="header-actions">
+        <button className="header-action icon-button" onClick={onToggleMode} title={mode === 'dark' ? 'Use light mode' : 'Use dark mode'} aria-label={mode === 'dark' ? 'Use light mode' : 'Use dark mode'}>{mode === 'dark' ? <Sun /> : <Moon />}</button>
         <button className="header-action icon-button" onClick={() => onToggleMute(!muted)} title={muted ? 'Unmute' : 'Mute'} aria-label={muted ? 'Unmute sounds' : 'Mute sounds'}>{muted ? <VolumeOff label="Muted" /> : <Volume label="Sound on" />}</button>
         <button className={`header-action ${noGuess ? 'selected' : ''}`} onClick={() => onToggleNoGuess(!noGuess)}>No-Guess</button>
         <button className={`header-action quick-flag ${quickFlag ? 'selected' : ''}`} onClick={() => onToggleQuickFlag(!quickFlag)} title="Toggle quick flag"><QuickFlag label="Quick flag" /> {quickFlag ? 'ON' : 'OFF'}</button>

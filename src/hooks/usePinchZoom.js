@@ -14,7 +14,7 @@ export default function usePinchZoom(onZoom) {
     if (pointersRef.current.size === 2) {
       const points = [...pointersRef.current.values()]
       startDistanceRef.current = distance(points[0], points[1])
-      startZoomRef.current = zoom
+      startZoomRef.current = Number.isFinite(zoom) ? zoom : 100
       setPinching(true)
     }
   }

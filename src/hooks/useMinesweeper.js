@@ -108,23 +108,33 @@ export default function useMinesweeper(difficulty) {
     if (import.meta.env.DEV && type === 'reveal') console.assert(moveLogRef.current[moveLogRef.current.length - 1].cells.length === cells.length, 'cascade is logged as one replay step')
   }, [])
 
-  const finish = useCallback((nextBoard, nextStatus) => {
+  const finish = useCallback((nextBoard, nextStatus, hitMine = null) => {
     if (import.meta.env.DEV) console.assert(Array.isArray(moveLogRef.current), 'replay move log exists when game finishes')
+    const finalBoard = hitMine
+      ? nextBoard.map((line) => line.map((cell) => ({
+        ...cell,
+        isHit: cell.row === hitMine[0] && cell.column === hitMine[1],
+      })))
+      : nextBoard
+    if (import.meta.env.DEV && nextStatus === 'lost') {
+      console.assert(finalBoard.flat().filter((cell) => cell.isMine).every((cell) => cell.isRevealed), 'all mines are revealed on loss')
+    }
     const result = {
       id: `${Date.now()}-${Math.random()}`,
-      board: nextBoard,
+      board: finalBoard,
       status: nextStatus,
       time,
       hints,
       mines: settings.mines,
       difficulty,
       difficultyLabel: settings.label,
-      rows: nextBoard.length,
-      columns: nextBoard[0]?.length || 0,
-      minePositions: nextBoard.flat().filter((cell) => cell.isMine).map((cell) => [cell.row, cell.column]),
+      rows: finalBoard.length,
+      columns: finalBoard[0]?.length || 0,
+      minePositions: finalBoard.flat().filter((cell) => cell.isMine).map((cell) => [cell.row, cell.column]),
+      hitMine,
       moveLog: moveLogRef.current,
     }
-    setBoard(nextBoard)
+    setBoard(finalBoard)
     setStatus(nextStatus)
     setFinishedGame(result)
     sound(nextStatus === 'won' ? playWin : playBomb)
@@ -137,7 +147,7 @@ export default function useMinesweeper(difficulty) {
       recordMove('reveal', [[row, column]])
       finish(nextBoard.map((line) => line.map((cell) => ({
         ...cell, isRevealed: cell.isMine || (cell.isFlagged && !cell.isMine),
-      }))), 'lost')
+      }))), 'lost', [row, column])
       return
     }
     nextBoard = floodReveal(nextBoard, row, column)
@@ -179,7 +189,7 @@ export default function useMinesweeper(difficulty) {
         recordMove('reveal', hiddenNeighbors)
         finish(nextBoard.map((line) => line.map((item) => ({
           ...item, isRevealed: item.isMine || (item.isFlagged && !item.isMine),
-        }))), 'lost')
+        }))), 'lost', hiddenNeighbors.find(([r, c]) => nextBoard[r][c].isMine) || null)
         return
       }
       hiddenNeighbors.forEach(([r, c]) => { nextBoard = floodReveal(nextBoard, r, c) })
@@ -189,7 +199,7 @@ export default function useMinesweeper(difficulty) {
       recordMove('reveal', [[row, column]])
       finish(nextBoard.map((line) => line.map((item) => ({
         ...item, isRevealed: item.isMine || (item.isFlagged && !item.isMine),
-      }))), 'lost')
+      }))), 'lost', [row, column])
       return
     } else {
       nextBoard = floodReveal(nextBoard, row, column)

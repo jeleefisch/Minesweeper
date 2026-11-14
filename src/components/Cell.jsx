@@ -15,6 +15,7 @@ function Cell({ cell, status, onReveal, onFlag, quickFlag = false, hintCell, rev
     cell.isRevealed ? 'revealed' : '',
     cell.isFlagged ? 'flagged' : '',
     cell.isMine && status === 'lost' ? 'mine' : '',
+    cell.isHit ? 'hit-mine' : '',
     cell.isFlagged && status === 'lost' && !cell.isMine ? 'wrong' : '',
     cell.isRevealed && cell.adjacent ? `number-${cell.adjacent}` : '',
     clickedMine ? 'clicked-mine' : '',

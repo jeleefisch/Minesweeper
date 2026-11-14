@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Board from './components/Board'
 import DifficultySelector from './components/DifficultySelector'
 import Footer from './components/Footer'
@@ -19,6 +19,13 @@ const themeColors = {
   'classic-gray': '#c0c0c0',
   'classic-green': '#dce8c8',
 }
+const darkThemeColors = {
+  'pastel-purple': '#241d2d',
+  'classic-gray': '#202020',
+  'classic-green': '#182017',
+}
+
+const getSystemMode = () => window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 
 function App() {
   const [difficulty, setDifficulty] = useState('easy')
@@ -27,15 +34,25 @@ function App() {
   const [hintMessage, setHintMessage] = useState('')
   const [leaderboardOpen, setLeaderboardOpen] = useState(false)
   const [leaderboardRank, setLeaderboardRank] = useState(null)
+  const [mode, setMode] = useLocalStorage('minesweeper-mode', getSystemMode())
   const game = useMinesweeper(difficulty)
   const stats = useStats()
   const zoom = useZoom()
   const leaderboard = useLeaderboard()
   const previousResult = useRef(null)
+  const { restart } = game
+  const restartGame = useCallback(() => {
+    setModalResult(null)
+    setLeaderboardRank(null)
+    restart()
+  }, [restart])
 
   useEffect(() => {
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColors[theme] || themeColors['classic-green'])
-  }, [theme])
+    document.documentElement.dataset.mode = mode
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', mode === 'dark'
+      ? darkThemeColors[theme] || darkThemeColors['classic-green']
+      : themeColors[theme] || themeColors['classic-green'])
+  }, [mode, theme])
 
   useEffect(() => {
     const modalOpen = Boolean(modalResult || leaderboardOpen)
@@ -58,7 +75,7 @@ function App() {
   useEffect(() => {
     const handleKey = (event) => {
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return
-      if (event.key.toLowerCase() === 'r') game.restart()
+      if (event.key.toLowerCase() === 'r') restartGame()
       if (event.key.toLowerCase() === 'm') game.setMuted((value) => !value)
       if (event.key.toLowerCase() === 'f') game.setQuickFlag((value) => !value)
       if (event.key.toLowerCase() === 'h') {
@@ -72,7 +89,7 @@ function App() {
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [game, zoom])
+  }, [game, restartGame, zoom])
 
   const handleHint = () => {
     const found = game.requestHint()
@@ -81,7 +98,7 @@ function App() {
   }
 
   return (
-    <main className="app" data-theme={theme}>
+    <main className="app" data-theme={theme} data-mode={mode}>
       <section className="game-shell">
         <div className="topline">
           <div><p className="eyebrow">Classic puzzle</p><h1>Minesweeper</h1></div>
@@ -101,7 +118,9 @@ function App() {
           mines={game.mines}
           time={game.time}
           status={game.status}
-          onRestart={game.restart}
+          mode={mode}
+          onToggleMode={() => setMode(mode === 'dark' ? 'light' : 'dark')}
+          onRestart={restartGame}
           muted={game.muted}
           onToggleMute={game.setMuted}
           noGuess={game.noGuess}
@@ -139,7 +158,7 @@ function App() {
           result={modalResult}
           stats={stats}
           onClose={() => setModalResult(null)}
-          onReplay={() => { setModalResult(null); game.restart() }}
+          onReplay={restartGame}
           onChangeDifficulty={() => setModalResult(null)}
           leaderboard={{ ...leaderboard, rank: leaderboardRank }}
           onSaveScore={(name) => {

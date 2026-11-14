@@ -41,7 +41,14 @@ export default function Board({ board, status, onReveal, onFlag, quickFlag, onTo
         <QuickFlag label="Quick Flag" /> {quickFlag ? 'Flag mode on' : 'Quick Flag'}
       </button>
       {board[0]?.length > 20 && <p className="wide-board-hint">Rotate your phone or zoom out for the full board</p>}
-      <div className="board-clip" ref={setScrollElement} {...pinchHandlers}>
+      <div
+        className="board-clip"
+        ref={setScrollElement}
+        onPointerDown={(event) => pinchHandlers.onPointerDown(event, zoom)}
+        onPointerMove={pinchHandlers.onPointerMove}
+        onPointerUp={pinchHandlers.onPointerUp}
+        onPointerCancel={pinchHandlers.onPointerCancel}
+      >
         <div className={`board ${status === 'won' ? 'board-won' : ''}`} onWheel={(event) => {
           if (event.ctrlKey) { event.preventDefault(); onZoom(event.deltaY > 0 ? -10 : 10) }
         }} style={{ '--cols': board[0]?.length, '--cell-size': cellSize }}>
