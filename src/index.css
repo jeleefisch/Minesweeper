@@ -1,8 +1,19 @@
-html { background: #dce8c8; }
+html {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #dce8c8;
+}
 body {
   margin: 0;
   min-width: 320px;
+  min-height: 100vh;
+  min-height: 100dvh;
   overscroll-behavior: contain;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 button,

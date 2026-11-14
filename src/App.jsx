@@ -12,6 +12,8 @@ import useStats from './hooks/useStats'
 import useZoom from './hooks/useZoom'
 import useLeaderboard from './hooks/useLeaderboard'
 import LeaderboardModal from './components/LeaderboardModal'
+import useScrollLock from './hooks/useScrollLock'
+import { preventContextMenu } from './utils/dom'
 import './App.css'
 
 const themeColors = {
@@ -54,11 +56,7 @@ function App() {
       : themeColors[theme] || themeColors['classic-green'])
   }, [mode, theme])
 
-  useEffect(() => {
-    const modalOpen = Boolean(modalResult || leaderboardOpen)
-    document.body.classList.toggle('modal-open', modalOpen)
-    return () => document.body.classList.remove('modal-open')
-  }, [leaderboardOpen, modalResult])
+  useScrollLock(Boolean(modalResult || leaderboardOpen))
 
   useEffect(() => {
     if (!game.finishedGame || previousResult.current === game.finishedGame.id) return
@@ -99,7 +97,7 @@ function App() {
 
   return (
     <main className="app" data-theme={theme} data-mode={mode}>
-      <section className="game-shell">
+      <section className="game-shell" onContextMenu={preventContextMenu}>
         <div className="topline">
           <div><p className="eyebrow">Classic puzzle</p><h1>Minesweeper</h1></div>
           <div className="top-controls"><ThemeSwitcher value={theme} onChange={setTheme} /></div>

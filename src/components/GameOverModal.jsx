@@ -3,6 +3,7 @@ import { Copy, Close, Pause, Play, Refresh, Share } from './icons/Icons'
 import { formatTime } from '../hooks/useStats'
 import { buildBoardMap, buildShareText } from '../utils/share'
 import { countAdjacent, createBoard } from '../utils/board'
+import { preventContextMenu } from '../utils/dom'
 
 const buildReplayBoard = (result, stepIndex, partialCount) => {
   if (stepIndex >= result.moveLog.length) return result.board
@@ -137,7 +138,7 @@ export default function GameOverModal({ result, stats, onClose, onReplay, onChan
     if (replayStep >= steps.length) setReplayStep(0)
     setReplaying((value) => !value)
   }
-  return <div className="modal-backdrop" onClick={(event) => { if (event.target === event.currentTarget) onClose() }}><section className="game-modal" role="dialog" aria-modal="true" tabIndex="-1" ref={dialogRef}>
+  return <div className="modal-backdrop" onContextMenu={preventContextMenu} onClick={(event) => { if (event.target === event.currentTarget) onClose() }}><section className="game-modal" onContextMenu={preventContextMenu} role="dialog" aria-modal="true" tabIndex="-1" ref={dialogRef}>
     <button className="modal-close" onClick={onClose} title="Close" aria-label="Close"><Close /></button>
     <h2>{result.status === 'won' ? 'WIN' : 'GAME OVER'}</h2>
     <p className="modal-time">{formatTime(result.time)} · {result.difficultyLabel}</p>

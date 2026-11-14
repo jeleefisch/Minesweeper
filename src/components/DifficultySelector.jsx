@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { preventContextMenu } from '../utils/dom'
 
 const presets = [['easy', 'Beginner'], ['medium', 'Intermediate'], ['hard', 'Expert'], ['custom', 'Custom']]
 
@@ -11,7 +12,7 @@ export default function DifficultySelector({ value, customSettings, onChange, on
       && next.mines >= 1 && next.mines < next.rows * next.columns) onCustomChange(next)
   }
   return (
-    <div className="difficulty">
+    <div className="difficulty" onContextMenu={preventContextMenu}>
       <div className="difficulty-tabs">
         {presets.map(([key, label]) => <button key={key} className={value === key ? 'active' : ''} onClick={() => onChange(key)}>{label}</button>)}
       </div>

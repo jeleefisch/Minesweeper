@@ -24,6 +24,7 @@ export default function usePinchZoom(onZoom) {
     if (!pointersRef.current.has(event.pointerId)) return
     pointersRef.current.set(event.pointerId, { clientX: event.clientX, clientY: event.clientY })
     if (pointersRef.current.size !== 2) return
+    event.preventDefault()
     const points = [...pointersRef.current.values()]
     const scale = distance(points[0], points[1]) / startDistanceRef.current
     const nextZoom = Math.round((startZoomRef.current * scale) / 10) * 10

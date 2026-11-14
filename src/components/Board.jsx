@@ -1,15 +1,31 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Cell from './Cell'
 import { getMineIndex, getRevealDepth } from '../utils/animation'
 import { QuickFlag } from './icons/Icons'
 import useBoardCellSize from '../hooks/useBoardCellSize'
 import usePinchZoom from '../hooks/usePinchZoom'
 import ZoomControls from './ZoomControls'
+import { preventContextMenu } from '../utils/dom'
 
 export default function Board({ board, status, onReveal, onFlag, quickFlag, onToggleQuickFlag, hintCell, zoom, onZoom, onResetZoom }) {
   const [scrollElement, setScrollElement] = useState(null)
+  const [isOverflowing, setIsOverflowing] = useState(false)
   const cellSize = useBoardCellSize(scrollElement, board[0]?.length || 1, zoom)
   const { pinching, pinchHandlers } = usePinchZoom((delta) => onZoom(delta))
+  useEffect(() => {
+    if (!scrollElement) return undefined
+    const scrollContainer = scrollElement.closest('.board-scroll')
+    const updateOverflow = () => setIsOverflowing(Boolean(scrollContainer && scrollContainer.scrollWidth > scrollContainer.clientWidth + 1))
+    updateOverflow()
+    const observer = new ResizeObserver(updateOverflow)
+    observer.observe(scrollElement)
+    if (scrollContainer) observer.observe(scrollContainer)
+    window.addEventListener('resize', updateOverflow)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', updateOverflow)
+    }
+  }, [scrollElement, cellSize])
   const [animationsEnabled, setAnimationsEnabled] = useState(() => {
     try {
       return localStorage.getItem('minesweeper-animations') !== 'false'
@@ -44,14 +60,16 @@ export default function Board({ board, status, onReveal, onFlag, quickFlag, onTo
       <div
         className="board-clip"
         ref={setScrollElement}
+        onContextMenu={preventContextMenu}
+        style={{ touchAction: isOverflowing ? 'pan-x pan-y' : 'pan-y' }}
         onPointerDown={(event) => pinchHandlers.onPointerDown(event, zoom)}
         onPointerMove={pinchHandlers.onPointerMove}
         onPointerUp={pinchHandlers.onPointerUp}
         onPointerCancel={pinchHandlers.onPointerCancel}
       >
-        <div className={`board ${status === 'won' ? 'board-won' : ''}`} onWheel={(event) => {
+        <div className={`board ${status === 'won' ? 'board-won' : ''}`} onContextMenu={preventContextMenu} style={{ '--cols': board[0]?.length, '--cell-size': cellSize, touchAction: isOverflowing ? 'pan-x pan-y' : 'pan-y' }} onWheel={(event) => {
           if (event.ctrlKey) { event.preventDefault(); onZoom(event.deltaY > 0 ? -10 : 10) }
-        }} style={{ '--cols': board[0]?.length, '--cell-size': cellSize }}>
+        }}>
           {board.flat().map((cell) => (
             <Cell
               key={`${cell.row}-${cell.column}`}

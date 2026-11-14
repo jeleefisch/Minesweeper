@@ -2,6 +2,7 @@ import { memo, useRef, useState } from 'react'
 import { getRevealOrigin, setRevealOrigin } from '../utils/animation'
 import useLongPress from '../hooks/useLongPress'
 import { Flag, Mine } from './icons/Icons'
+import { preventContextMenu } from '../utils/dom'
 
 function Cell({ cell, status, onReveal, onFlag, quickFlag = false, hintCell, revealDepth = 0, mineIndex = 0, animationsEnabled = true, pinching = false }) {
   const lastTap = useRef(0)
@@ -74,7 +75,7 @@ function Cell({ cell, status, onReveal, onFlag, quickFlag = false, hintCell, rev
       onPointerMove={longPress.onPointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={() => { setPressing(false); longPress.onPointerCancel() }}
-      onContextMenu={(event) => { event.preventDefault(); onFlag(cell.row, cell.column) }}
+      onContextMenu={(event) => { if (preventContextMenu(event)) onFlag(cell.row, cell.column) }}
       onClick={(event) => event.preventDefault()}
       aria-label={cell.isFlagged ? 'Flagged cell' : cell.isRevealed ? `Revealed cell ${cell.adjacent}` : 'Hidden cell'}
     >

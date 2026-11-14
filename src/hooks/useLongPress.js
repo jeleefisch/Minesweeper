@@ -4,6 +4,8 @@ export default function useLongPress({ onTap, onLongPress, delay = 350, moveThre
   const timerRef = useRef(null)
   const startRef = useRef(null)
   const longPressedRef = useRef(false)
+  const cancelledRef = useRef(false)
+  const eventRef = useRef(null)
 
   const clear = () => {
     if (timerRef.current) window.clearTimeout(timerRef.current)
@@ -14,9 +16,12 @@ export default function useLongPress({ onTap, onLongPress, delay = 350, moveThre
     if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return
     startRef.current = { x: event.clientX, y: event.clientY }
     longPressedRef.current = false
+    cancelledRef.current = false
+    eventRef.current = event
     clear()
     timerRef.current = window.setTimeout(() => {
       longPressedRef.current = true
+      eventRef.current?.preventDefault()
       if (navigator.vibrate) navigator.vibrate(15)
       onLongPress()
     }, delay)
@@ -26,19 +31,24 @@ export default function useLongPress({ onTap, onLongPress, delay = 350, moveThre
     if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return
     if (!startRef.current) return
     const distance = Math.hypot(event.clientX - startRef.current.x, event.clientY - startRef.current.y)
-    if (distance > moveThreshold) clear()
+    if (distance > moveThreshold) {
+      cancelledRef.current = true
+      clear()
+    }
   }
 
   const onPointerUp = (event) => {
     if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return
     clear()
-    if (!longPressedRef.current) onTap(event)
+    if (!longPressedRef.current && !cancelledRef.current) onTap(event)
     startRef.current = null
+    eventRef.current = null
   }
 
   const onPointerCancel = () => {
     clear()
     startRef.current = null
+    eventRef.current = null
   }
 
   if (import.meta.env.DEV) {
