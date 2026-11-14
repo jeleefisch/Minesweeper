@@ -5,7 +5,7 @@ import FaceHappy from './icons/FaceHappy'
 
 export default function Header({
   flags, mines, time, status, bestTime, onRestart, muted, onToggleMute,
-  noGuess, onToggleNoGuess, noGuessWarning, generationMessage, quickFlag,
+  noGuess, onToggleNoGuess, noGuessAllowed = true, noGuessWarning, generationMessage, quickFlag,
   onToggleQuickFlag, hints, onHint, hintMessage, onLeaderboard, mode, onToggleMode,
 }) {
   const face = status === 'won' ? <FaceCool label="Won" /> : status === 'lost' ? <FaceDead label="Lost" /> : <FaceHappy label="Playing" />
@@ -17,7 +17,7 @@ export default function Header({
       <div className="header-actions">
         <button className="header-action icon-button" onClick={onToggleMode} title={mode === 'dark' ? 'Use light mode' : 'Use dark mode'} aria-label={mode === 'dark' ? 'Use light mode' : 'Use dark mode'}>{mode === 'dark' ? <Sun /> : <Moon />}</button>
         <button className="header-action icon-button" onClick={() => onToggleMute(!muted)} title={muted ? 'Unmute' : 'Mute'} aria-label={muted ? 'Unmute sounds' : 'Mute sounds'}>{muted ? <VolumeOff label="Muted" /> : <Volume label="Sound on" />}</button>
-        <button className={`header-action ${noGuess ? 'selected' : ''}`} onClick={() => onToggleNoGuess(!noGuess)}>No-Guess</button>
+        <button className={`header-action ${noGuess ? 'selected' : ''}`} onClick={() => onToggleNoGuess(!noGuess)} disabled={!noGuessAllowed} title={noGuessAllowed ? 'Avoid guess boards' : 'Not available in God mode'}>No-Guess{!noGuessAllowed && ' · Not available in God mode'}</button>
         <button className={`header-action quick-flag ${quickFlag ? 'selected' : ''}`} onClick={() => onToggleQuickFlag(!quickFlag)} title="Toggle quick flag"><QuickFlag label="Quick flag" /> {quickFlag ? 'ON' : 'OFF'}</button>
         <button className="header-action" onClick={onHint} title="Find a safe move"><Hint label="Hint" /> {hints}</button>
         <button className="header-action icon-button" onClick={onLeaderboard} title="Leaderboard" aria-label="Leaderboard"><Trophy label="Leaderboard" /></button>

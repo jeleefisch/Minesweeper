@@ -4,10 +4,9 @@ import { getMineIndex, getRevealDepth } from '../utils/animation'
 import { QuickFlag } from './icons/Icons'
 import useBoardCellSize from '../hooks/useBoardCellSize'
 import usePinchZoom from '../hooks/usePinchZoom'
-import ZoomControls from './ZoomControls'
 import { preventContextMenu } from '../utils/dom'
 
-export default function Board({ board, status, onReveal, onFlag, quickFlag, onToggleQuickFlag, hintCell, zoom, onZoom, onResetZoom }) {
+export default function Board({ board, status, onReveal, onFlag, quickFlag, onToggleQuickFlag, hintCell, zoom, onZoom }) {
   const [scrollElement, setScrollElement] = useState(null)
   const [isOverflowing, setIsOverflowing] = useState(false)
   const cellSize = useBoardCellSize(scrollElement, board[0]?.length || 1, zoom)
@@ -36,6 +35,7 @@ export default function Board({ board, status, onReveal, onFlag, quickFlag, onTo
   const mineIndexes = new Map(
     board.flat().filter((cell) => cell.isMine).map((cell, index) => [`${cell.row}-${cell.column}`, index]),
   )
+  const boardAnimationsEnabled = animationsEnabled && board.length * (board[0]?.length || 0) <= 1000
 
   const toggleAnimations = () => {
     const nextValue = !animationsEnabled
@@ -48,10 +48,9 @@ export default function Board({ board, status, onReveal, onFlag, quickFlag, onTo
   }
 
   return (
-    <div className={`board-shell ${animationsEnabled ? '' : 'animations-off'}`}>
-      <ZoomControls zoom={zoom} onChange={onZoom} onReset={onResetZoom} />
+    <div className={`board-shell ${boardAnimationsEnabled ? '' : 'animations-off'}`}>
       <button className="animation-toggle" onClick={toggleAnimations} aria-pressed={animationsEnabled}>
-        Animations: {animationsEnabled ? 'On' : 'Off'}
+        Animations: {boardAnimationsEnabled ? 'On' : 'Off'}
       </button>
       <button className={`mobile-quick-flag ${quickFlag ? 'selected' : ''}`} onClick={() => onToggleQuickFlag(!quickFlag)} aria-pressed={quickFlag} title="Toggle Quick Flag">
         <QuickFlag label="Quick Flag" /> {quickFlag ? 'Flag mode on' : 'Quick Flag'}
@@ -79,7 +78,7 @@ export default function Board({ board, status, onReveal, onFlag, quickFlag, onTo
               onFlag={onFlag}
               quickFlag={quickFlag}
               hintCell={hintCell}
-              animationsEnabled={animationsEnabled}
+              animationsEnabled={boardAnimationsEnabled}
               revealDepth={getRevealDepth(cell.row, cell.column)}
               mineIndex={getMineIndex(mineIndexes.get(`${cell.row}-${cell.column}`) || 0)}
               pinching={pinching}

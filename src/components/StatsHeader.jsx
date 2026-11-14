@@ -1,9 +1,10 @@
 import { difficultyKey, formatTime } from '../hooks/useStats'
 import { preventContextMenu } from '../utils/dom'
+import { getDifficultyConfig } from '../config/difficulties'
 
 export default function StatsHeader({ stats, difficulty, onReset }) {
   const key = difficultyKey(difficulty)
-  const label = { easy: 'Beginner', medium: 'Intermediate', hard: 'Expert', custom: 'Custom' }[difficulty]
+  const label = getDifficultyConfig(difficulty).label
   return (
     <header className="stats-header" onContextMenu={preventContextMenu}>
       <div><span>Games Played</span><strong>{stats.played}</strong></div>

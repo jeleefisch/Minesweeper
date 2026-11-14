@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Copy, Close, Pause, Play, Refresh, Share } from './icons/Icons'
+import { Copy, Close, Pause, Play, Rewind, Share } from './icons/Icons'
 import { formatTime } from '../hooks/useStats'
 import { buildBoardMap, buildShareText } from '../utils/share'
 import { countAdjacent, createBoard } from '../utils/board'
@@ -141,13 +141,16 @@ export default function GameOverModal({ result, stats, onClose, onReplay, onChan
   return <div className="modal-backdrop" onContextMenu={preventContextMenu} onClick={(event) => { if (event.target === event.currentTarget) onClose() }}><section className="game-modal" onContextMenu={preventContextMenu} role="dialog" aria-modal="true" tabIndex="-1" ref={dialogRef}>
     <button className="modal-close" onClick={onClose} title="Close" aria-label="Close"><Close /></button>
     <h2>{result.status === 'won' ? 'WIN' : 'GAME OVER'}</h2>
-    <p className="modal-time">{formatTime(result.time)} · {result.difficultyLabel}</p>
+    <p className="modal-time">{formatTime(result.time)} · {result.difficultyLabel}{result.difficultyBadge && <small className="difficulty-badge"> {result.difficultyBadge}</small>}</p>
     <div className="result-grid"><span>Correct flags <strong>{result.board.flat().filter((cell) => cell.isMine && cell.isFlagged).length}/{result.mines}</strong></span><span>Cells revealed <strong>{totalSafe ? Math.round((revealedCount / totalSafe) * 100) : 100}%</strong></span><span>Hints used <strong>{result.hints}</strong></span><span>Streak <strong>{stats.currentStreak}</strong></span></div>
     {result.newBest && <p className="new-best">New best time!</p>}{result.hints > 0 && <p className="modal-note">Hints count toward wins and streaks, but not best time.</p>}
     {result.status === 'won' && <div className="leaderboard-entry"><label>Player name <input maxLength="16" autoComplete="off" autoCapitalize="words" enterKeyHint="done" value={name} onChange={(event) => setName(event.target.value)} /></label><button onClick={() => onSaveScore(name)}>Save score</button>{leaderboard.rank && <strong>New leaderboard entry: #{leaderboard.rank}</strong>}</div>}
-    <svg className="board-map" viewBox={`0 0 ${map[0].length} ${map.length}`} shapeRendering="crispEdges">{map.map((line, row) => line.map((cell, column) => <g key={`${row}-${column}`}><rect x={column} y={row} width="1" height="1" className={cell.isHit ? 'map-hit-mine' : cell.isMine ? 'map-mine' : cell.isFlagged && !cell.isMine ? 'map-wrong' : cell.isRevealed ? 'map-revealed' : 'map-hidden'} />{cell.isFlagged && !cell.isMine && <path className="map-wrong-mark" d={`M${column + .2} ${row + .2}L${column + .8} ${row + .8}M${column + .8} ${row + .2}L${column + .2} ${row + .8}`} />}</g>))}</svg>
+    <svg className="board-map" viewBox={`0 0 ${map[0].length} ${map.length}`} shapeRendering="crispEdges">{map.map((line, row) => line.map((cell, column) => {
+      const state = cell.isRevealed ? 'map-revealed' : cell.isHit ? 'map-hit-mine' : cell.isMine && !cell.isFlagged ? 'map-mine' : cell.isFlagged && !cell.isMine ? 'map-wrong' : cell.isFlagged ? 'map-flag' : 'map-hidden'
+      return <g key={`${row}-${column}`}><rect x={column} y={row} width="1" height="1" className={state} />{cell.isFlagged && !cell.isMine && <path className="map-wrong-mark" d={`M${column + .2} ${row + .2}L${column + .8} ${row + .8}M${column + .8} ${row + .2}L${column + .2} ${row + .8}`} />}{cell.isFlagged && cell.isMine && <path className="map-flag-mark" d={`M${column + .35} ${row + .8}V${row + .2}h.45l.25.2-.25.2h-.45`} />}</g>
+    }))}</svg>
     {steps.length > 0 && <div className="replay-controls">
-      <div className="modal-actions"><button onClick={toggleReplay} title="Play or pause replay" aria-label="Play or pause replay">{replaying ? <Pause /> : <Play />}</button><button onClick={() => { setReplayStep(0); setReplaying(false) }} title="Restart replay" aria-label="Restart replay"><Refresh /></button><button onClick={() => setSpeed((value) => value === 4 ? 1 : value * 2)} title="Replay speed">Speed {speed}x</button></div>
+      <div className="modal-actions"><button onClick={toggleReplay} title="Play or pause replay" aria-label="Play or pause replay">{replaying ? <Pause /> : <Play />}</button><button onClick={() => { setReplayStep(0); setReplaying(false) }} title="Rewind replay" aria-label="Rewind replay"><Rewind /></button><button onClick={() => setSpeed((value) => value === 4 ? 1 : value * 2)} title="Replay speed">Speed {speed}x</button></div>
       <input type="range" min="0" max={steps.length} value={replayStep} onChange={(event) => { setReplaying(false); setReplayStep(Number(event.target.value)) }} aria-label="Replay progress" />
     </div>}
     <div className="modal-actions"><button onClick={copy} title="Copy summary" aria-label="Copy summary"><Copy />{copied ? 'Copied' : ''}</button>{navigator.share && <button onClick={async () => navigator.share({ title: 'Minesweeper result', text: summary })} title="Share" aria-label="Share"><Share /></button>}<button onClick={saveImage}>Save image</button><button onClick={onClose}>View board</button><button onClick={onReplay}>Play Again</button><button onClick={onChangeDifficulty}>Change Difficulty</button></div>

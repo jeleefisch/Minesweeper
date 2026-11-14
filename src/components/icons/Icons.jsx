@@ -14,5 +14,9 @@ export const Copy = (props) => <Icon {...props}><rect x="8" y="8" width="11" hei
 export const Trophy = (props) => <Icon {...props}><path d="M8 4h8v5a4 4 0 0 1-8 0V4z" fill="currentColor" opacity=".25"/><path d="M8 6H4v2a4 4 0 0 0 4 4m8-6h4v2a4 4 0 0 1-4 4M12 13v5m-4 2h8"/></Icon>
 export const Close = (props) => <Icon {...props}><path d="M6 6l12 12M18 6L6 18"/></Icon>
 export const Refresh = (props) => <Icon {...props}><path d="M20 11a8 8 0 1 0 1 4"/><path d="M20 5v6h-6"/></Icon>
+export const Rewind = (props) => <Icon {...props}><path d="M11 6l-7 6 7 6V6zm9 0l-7 6 7 6V6z"/></Icon>
+export const OneToOne = (props) => <Icon {...props}><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M8 9v6m-1-5h2m5-1v6m-2-5h4m-2 0v5"/></Icon>
+export const Skull = (props) => <Icon {...props}><path d="M7 17h10v3H7zM5 11a7 7 0 1 1 14 0v4H5v-4z" fill="currentColor" opacity=".25"/><circle cx="9" cy="11" r="1" fill="currentColor"/><circle cx="15" cy="11" r="1" fill="currentColor"/><path d="M10 15h4"/></Icon>
+export const Trash = (props) => <Icon {...props}><path d="M5 7h14m-9 4v5m4-5v5M9 7V4h6v3m-9 0l1 14h10l1-14"/></Icon>
 export const Play = (props) => <Icon {...props}><path d="M8 5l10 7-10 7V5z" fill="currentColor"/></Icon>
 export const Pause = (props) => <Icon {...props}><path d="M8 5v14m8-14v14"/></Icon>

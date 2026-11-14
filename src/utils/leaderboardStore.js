@@ -1,5 +1,5 @@
 const key = 'minesweeper-leaderboard'
-const emptyScores = { beginner: [], intermediate: [], expert: [] }
+const emptyScores = { beginner: [], intermediate: [], expert: [], god: [] }
 export const getScores = () => {
   try {
     const stored = localStorage.getItem(key)
@@ -15,4 +15,4 @@ export const addScore = (difficulty, score) => {
   localStorage.setItem(key, JSON.stringify(current))
   return score
 }
-export const clear = () => localStorage.setItem(key, '{"beginner":[],"intermediate":[],"expert":[]}')
+export const clear = () => localStorage.setItem(key, JSON.stringify(emptyScores))

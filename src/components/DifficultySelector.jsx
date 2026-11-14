@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { preventContextMenu } from '../utils/dom'
+import { DIFFICULTIES } from '../config/difficulties'
+import { Skull } from './icons/Icons'
 
-const presets = [['easy', 'Beginner'], ['medium', 'Intermediate'], ['hard', 'Expert'], ['custom', 'Custom']]
+const presets = [...Object.entries(DIFFICULTIES), ['custom', { label: 'Custom' }]]
 
 export default function DifficultySelector({ value, customSettings, onChange, onCustomChange }) {
   const [draft, setDraft] = useState(customSettings)
@@ -14,7 +16,7 @@ export default function DifficultySelector({ value, customSettings, onChange, on
   return (
     <div className="difficulty" onContextMenu={preventContextMenu}>
       <div className="difficulty-tabs">
-        {presets.map(([key, label]) => <button key={key} className={value === key ? 'active' : ''} onClick={() => onChange(key)}>{label}</button>)}
+        {presets.map(([key, config]) => <button key={key} className={`${value === key ? 'active' : ''} ${key === 'god' ? 'god-difficulty' : ''}`} onClick={() => onChange(key)}>{key === 'god' && <span className="difficulty-icon"><Skull label="God difficulty" /></span>}{config.label}{config.badge && <small>{config.badge}</small>}</button>)}
       </div>
       {value === 'custom' && (
         <div className="custom-fields">

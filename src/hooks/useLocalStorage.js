@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 
-export default function useLocalStorage(key, initialValue) {
+const identity = (value) => value
+
+export default function useLocalStorage(key, initialValue, normalize = identity) {
   const [value, setValue] = useState(() => {
     try {
       const stored = localStorage.getItem(key)
-      return stored ? JSON.parse(stored) : initialValue
+      return normalize(stored ? JSON.parse(stored) : initialValue)
     } catch {
-      return initialValue
+      return normalize(initialValue)
     }
   })
 
@@ -16,7 +18,7 @@ export default function useLocalStorage(key, initialValue) {
     } catch {
       // Storage can be unavailable in private or restricted browser contexts.
     }
-  }, [key, value])
+  }, [key, normalize, value])
 
   return [value, setValue]
 }

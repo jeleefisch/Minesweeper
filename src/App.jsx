@@ -14,6 +14,7 @@ import useLeaderboard from './hooks/useLeaderboard'
 import LeaderboardModal from './components/LeaderboardModal'
 import useScrollLock from './hooks/useScrollLock'
 import { preventContextMenu } from './utils/dom'
+import { getLeaderboardKey } from './config/difficulties'
 import './App.css'
 
 const themeColors = {
@@ -42,8 +43,12 @@ function App() {
   const zoom = useZoom()
   const leaderboard = useLeaderboard()
   const previousResult = useRef(null)
+  const hintMessageTimerRef = useRef(null)
   const { restart } = game
   const restartGame = useCallback(() => {
+    window.clearTimeout(hintMessageTimerRef.current)
+    hintMessageTimerRef.current = null
+    setHintMessage('')
     setModalResult(null)
     setLeaderboardRank(null)
     restart()
@@ -57,18 +62,23 @@ function App() {
   }, [mode, theme])
 
   useScrollLock(Boolean(modalResult || leaderboardOpen))
+  useEffect(() => () => window.clearTimeout(hintMessageTimerRef.current), [])
 
   useEffect(() => {
     if (!game.finishedGame || previousResult.current === game.finishedGame.id) return
     previousResult.current = game.finishedGame.id
     stats.recordGame(game.finishedGame)
+    const resultKey = getLeaderboardKey(difficulty)
     const newBest = game.finishedGame.status === 'won' && game.finishedGame.hints === 0
-      && (stats.bestTimes[{ easy: 'beginner', medium: 'intermediate', hard: 'expert' }[difficulty]] === null
-        || game.finishedGame.time < stats.bestTimes[{ easy: 'beginner', medium: 'intermediate', hard: 'expert' }[difficulty]])
+      && resultKey
+      && (stats.bestTimes[resultKey] === null
+        || game.finishedGame.time < stats.bestTimes[resultKey])
     const result = { ...game.finishedGame, newBest }
-    const timer = window.setTimeout(() => setModalResult(result), 800)
+    const timer = window.setTimeout(() => {
+      if (game.gameId === result.gameId) setModalResult(result)
+    }, 800)
     return () => window.clearTimeout(timer)
-  }, [difficulty, game.finishedGame, stats])
+  }, [difficulty, game.finishedGame, game.gameId, stats])
 
   useEffect(() => {
     const handleKey = (event) => {
@@ -92,7 +102,13 @@ function App() {
   const handleHint = () => {
     const found = game.requestHint()
     setHintMessage(found ? '' : 'No safe move found, you may need to guess')
-    if (!found) window.setTimeout(() => setHintMessage(''), 2200)
+    window.clearTimeout(hintMessageTimerRef.current)
+    if (!found) {
+      const currentGameId = game.gameId
+      hintMessageTimerRef.current = window.setTimeout(() => {
+        if (game.gameId === currentGameId) setHintMessage('')
+      }, 2200)
+    }
   }
 
   return (
@@ -123,6 +139,7 @@ function App() {
           onToggleMute={game.setMuted}
           noGuess={game.noGuess}
           onToggleNoGuess={game.setNoGuess}
+          noGuessAllowed={game.noGuessAllowed}
           noGuessWarning={game.noGuessWarning}
           generationMessage={game.isGenerating ? 'Generating...' : game.generationMessage}
           quickFlag={game.quickFlag}
@@ -134,6 +151,7 @@ function App() {
         />
         <div className="board-scroll">
           <Board
+            key={game.gameId}
             board={game.board}
             status={game.status}
             onReveal={game.reveal}
@@ -143,13 +161,12 @@ function App() {
             hintCell={game.hintCell}
             zoom={zoom.zoom}
             onZoom={zoom.changeZoom}
-            onResetZoom={zoom.resetZoom}
           />
         </div>
         {game.finishedGame && !modalResult && (
           <button className="reopen-result" onClick={() => setModalResult(game.finishedGame)}>View result</button>
         )}
-        <Footer />
+        <Footer zoom={zoom.zoom} onZoom={zoom.changeZoom} onResetZoom={zoom.resetZoom} />
       </section>
       {modalResult && (
         <GameOverModal
@@ -160,7 +177,7 @@ function App() {
           onChangeDifficulty={() => setModalResult(null)}
           leaderboard={{ ...leaderboard, rank: leaderboardRank }}
           onSaveScore={(name) => {
-            const key = { easy: 'beginner', medium: 'intermediate', hard: 'expert' }[difficulty]
+            const key = getLeaderboardKey(difficulty)
             if (!key || modalResult.hints > 0 || modalResult.status !== 'won') return
             const scores = leaderboard.scores[key] || []
             const rank = scores.filter((score) => score.time <= modalResult.time).length + 1

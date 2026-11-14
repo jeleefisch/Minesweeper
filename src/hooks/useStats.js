@@ -1,19 +1,25 @@
 import { useCallback, useRef } from 'react'
 import useLocalStorage from './useLocalStorage'
+import { getLeaderboardKey } from '../config/difficulties'
 
 const initialStats = {
   played: 0,
   wins: 0,
   currentStreak: 0,
   bestStreak: 0,
-  bestTimes: { beginner: null, intermediate: null, expert: null },
+  bestTimes: { beginner: null, intermediate: null, expert: null, god: null },
 }
 
-export const difficultyKey = (difficulty) => ({
-  easy: 'beginner',
-  medium: 'intermediate',
-  hard: 'expert',
-}[difficulty] || null)
+export const difficultyKey = getLeaderboardKey
+
+const normalizeStats = (value) => {
+  const source = value && typeof value === 'object' ? value : {}
+  return {
+    ...initialStats,
+    ...source,
+    bestTimes: { ...initialStats.bestTimes, ...(source.bestTimes || {}) },
+  }
+}
 
 export const formatTime = (seconds) => {
   if (seconds === undefined || seconds === null) return '--'
@@ -21,12 +27,7 @@ export const formatTime = (seconds) => {
 }
 
 export default function useStats() {
-  const [storedStats, setStats] = useLocalStorage('minesweeper-stats', initialStats)
-  const stats = {
-    ...initialStats,
-    ...storedStats,
-    bestTimes: { ...initialStats.bestTimes, ...(storedStats.bestTimes || {}) },
-  }
+  const [stats, setStats] = useLocalStorage('minesweeper-stats', initialStats, normalizeStats)
   const recordedGame = useRef(null)
   const recordGame = useCallback((result) => {
     if (recordedGame.current === result.id) return
@@ -63,4 +64,5 @@ export const runStatsChecks = () => {
   console.assert(Math.round((won.wins / won.played) * 100) === 100, 'win rate math')
   console.assert({ ...won, currentStreak: 0 }.currentStreak === 0, 'streak reset on loss')
   console.assert(base.bestTimes.beginner === null, 'hinted wins do not create a best time')
+  console.assert(base.bestTimes.god === null, 'God best time migrates with old stats')
 }

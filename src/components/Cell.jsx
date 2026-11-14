@@ -10,17 +10,28 @@ function Cell({ cell, status, onReveal, onFlag, quickFlag = false, hintCell, rev
   const origin = getRevealOrigin()
   const clickedMine = cell.isMine && status === 'lost' && origin
     && origin.row === cell.row && origin.column === cell.column
+  const displayState = cell.isRevealed
+    ? (cell.adjacent ? 'revealed-number' : 'revealed-empty')
+    : cell.isHit
+      ? 'hit-mine'
+      : cell.isMine && status === 'lost' && !cell.isFlagged
+        ? 'mine'
+        : cell.isFlagged && status === 'lost' && !cell.isMine
+          ? 'wrong'
+          : cell.isFlagged
+            ? 'flag'
+            : 'hidden'
+  if (import.meta.env.DEV && displayState.startsWith('revealed')) {
+    console.assert(!['mine', 'hit-mine', 'wrong', 'flag'].includes(displayState), 'revealed tiles never render an X or mine layer')
+  }
   const className = [
     'cell',
     (cell.row + cell.column) % 2 === 0 ? 'tile-a' : 'tile-b',
-    cell.isRevealed ? 'revealed' : '',
-    cell.isFlagged ? 'flagged' : '',
-    cell.isMine && status === 'lost' ? 'mine' : '',
-    cell.isHit ? 'hit-mine' : '',
-    cell.isFlagged && status === 'lost' && !cell.isMine ? 'wrong' : '',
-    cell.isRevealed && cell.adjacent ? `number-${cell.adjacent}` : '',
+    displayState,
+    displayState.startsWith('revealed') ? 'revealed' : '',
+    displayState === 'revealed-number' ? `number-${cell.adjacent}` : '',
     clickedMine ? 'clicked-mine' : '',
-    cell.isMine && status === 'lost' ? 'mine-stagger' : '',
+    displayState === 'mine' || displayState === 'hit-mine' ? 'mine-stagger' : '',
     status === 'won' ? 'win-wave' : '',
     hintCell?.row === cell.row && hintCell?.column === cell.column ? 'hint' : '',
     quickFlag && !cell.isRevealed ? 'quick-flag' : '',
@@ -79,9 +90,9 @@ function Cell({ cell, status, onReveal, onFlag, quickFlag = false, hintCell, rev
       onClick={(event) => event.preventDefault()}
       aria-label={cell.isFlagged ? 'Flagged cell' : cell.isRevealed ? `Revealed cell ${cell.adjacent}` : 'Hidden cell'}
     >
-      {cell.isFlagged && status !== 'lost' ? <span className="cell-content flag-content"><Flag label="Flag" /></span>
-        : cell.isMine && status === 'lost' ? <span className="cell-content mine-content"><Mine label="Mine" /></span>
-          : cell.isRevealed && cell.adjacent ? <span className="cell-content number-content">{cell.adjacent}</span> : ''}
+      {displayState === 'flag' ? <span className="cell-content flag-content"><Flag label="Flag" /></span>
+        : displayState === 'mine' || displayState === 'hit-mine' ? <span className="cell-content mine-content"><Mine label="Mine" /></span>
+          : displayState === 'revealed-number' ? <span className="cell-content number-content">{cell.adjacent}</span> : ''}
     </button>
   )
 }

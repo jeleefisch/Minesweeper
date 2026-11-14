@@ -1,12 +1,12 @@
-export const buildBoardMap = (board, maxSize = 20) => {
+export const buildBoardMap = (board, maxSize = 50) => {
   const rowStep = Math.max(1, Math.ceil(board.length / maxSize))
   const columnStep = Math.max(1, Math.ceil((board[0]?.length || 0) / maxSize))
   return board.filter((_, row) => row % rowStep === 0).map((line) => line.filter((_, column) => column % columnStep === 0))
 }
 
-export const buildShareText = ({ difficulty, status, time, streak, hints }) => {
+export const buildShareText = ({ difficulty, difficultyLabel, status, time, streak, hints }) => {
   const formatted = typeof time === 'number' ? `${Math.floor(time / 60)}:${String(time % 60).padStart(2, '0')}` : time
-  return `Minesweeper (${difficulty}) ${status === 'won' ? 'WIN' : 'GAME OVER'} in ${formatted}, Streak ${streak}, Hints ${hints}`
+  return `Minesweeper (${difficultyLabel || difficulty}) ${status === 'won' ? 'WIN' : 'GAME OVER'} in ${formatted}, Streak ${streak}, Hints ${hints}`
 }
 
 export const runShareCheck = () => {

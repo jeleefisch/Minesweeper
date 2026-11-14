@@ -154,8 +154,9 @@ input {
 
 .difficulty-tabs {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
+  overflow-x: auto;
 }
 
 .difficulty-tabs button {
@@ -173,6 +174,27 @@ input {
   color: var(--text);
   border-color: var(--accent);
   background: var(--button);
+}
+
+.difficulty-tabs button.god-difficulty {
+  color: #b26a00;
+  border-color: color-mix(in srgb, #b26a00 55%, var(--border));
+}
+
+.difficulty-tabs button.god-difficulty.active {
+  background: color-mix(in srgb, #b26a00 18%, var(--button));
+}
+
+.difficulty-tabs button small {
+  display: block;
+  font-size: .58rem;
+  font-weight: 800;
+}
+
+.difficulty-icon svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
 }
 
 .custom-fields {
@@ -315,7 +337,7 @@ input {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin: 0 auto 6px;
+  margin: 0;
   color: var(--muted);
   font-size: .75rem;
 }
@@ -330,6 +352,24 @@ input {
   background: var(--button);
   color: var(--text);
   cursor: pointer;
+}
+
+.zoom-controls button:last-child {
+  width: auto;
+  padding: 0 10px;
+}
+
+.footer-zoom-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 14px;
+  border-left: 1px solid var(--border);
+}
+
+.zoom-label {
+  color: var(--text);
+  font-weight: 800;
 }
 
 .animation-toggle {
@@ -438,7 +478,7 @@ input {
   transform: scale(.92);
 }
 
-.cell.pressing::after {
+.cell.pressing:not(.revealed)::after {
   position: absolute;
   inset: 3px;
   border: 2px solid color-mix(in srgb, var(--accent) 70%, transparent);
@@ -878,6 +918,8 @@ kbd {
 .map-hit-mine { fill: var(--number-3); }
 .map-wrong { fill: var(--mine); }
 .map-wrong-mark { fill: none; stroke: var(--text); stroke-width: .12; }
+.map-flag { fill: var(--tile-a); }
+.map-flag-mark { fill: var(--accent); stroke: var(--accent); stroke-width: .08; }
 .leaderboard-tabs { display: flex; gap: 6px; margin: 12px 0; }
 .leaderboard-tabs button { border: 1px solid var(--border); border-radius: var(--control-radius); padding: 6px 8px; background: var(--button); color: var(--text); cursor: pointer; }
 .leaderboard-tabs button.selected { border-color: var(--accent); }
@@ -941,7 +983,7 @@ kbd {
   .stats-header strong { font-size: .95rem; }
   .stats-header .text-button { grid-column: span 2; min-height: 44px; }
   .difficulty-tabs { gap: 4px; flex-wrap: nowrap; }
-  .difficulty-tabs button { flex: 1 1 0; min-width: 0; padding: 8px 4px; font-size: .75rem; }
+  .difficulty-tabs button { flex: 0 0 auto; min-width: 92px; padding: 8px 6px; font-size: .72rem; }
   .mobile-quick-flag { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; margin: 8px 0; }
   .mobile-quick-flag.selected { border-color: var(--accent); background: var(--accent); color: var(--panel); }
   .wide-board-hint { display: block; }
@@ -956,6 +998,8 @@ kbd {
   .controls-list.open { display: grid; }
   .controls-list .touch-controls { display: block; grid-column: 1 / -1; }
   .controls-list kbd { display: none; }
+  .footer-zoom-group { justify-content: center; width: 100%; padding: 8px 0 0; border-top: 1px solid var(--border); border-left: 0; }
+  .zoom-controls { flex-wrap: wrap; }
   .modal-backdrop { align-items: end; padding: 0; }
   .game-modal {
     align-self: end;
@@ -968,7 +1012,8 @@ kbd {
   }
   .modal-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .modal-actions button, .leaderboard-tabs button { min-height: 44px; }
-  .leaderboard-tabs { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .leaderboard-tabs { display: flex; overflow-x: auto; }
+  .leaderboard-tabs button { flex: 0 0 auto; }
   .leaderboard-modal li { grid-template-columns: 30px 1fr 55px; }
   .leaderboard-modal li small { grid-column: 2 / -1; }
 }
