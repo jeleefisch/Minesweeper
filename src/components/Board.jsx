@@ -1,9 +1,15 @@
 import { useState } from 'react'
 import Cell from './Cell'
 import { getMineIndex, getRevealDepth } from '../utils/animation'
+import { QuickFlag } from './icons/Icons'
+import useBoardCellSize from '../hooks/useBoardCellSize'
+import usePinchZoom from '../hooks/usePinchZoom'
 import ZoomControls from './ZoomControls'
 
-export default function Board({ board, status, onReveal, onFlag, quickFlag, hintCell, zoom, onZoom, onResetZoom }) {
+export default function Board({ board, status, onReveal, onFlag, quickFlag, onToggleQuickFlag, hintCell, zoom, onZoom, onResetZoom }) {
+  const [scrollElement, setScrollElement] = useState(null)
+  const cellSize = useBoardCellSize(scrollElement, board[0]?.length || 1, zoom)
+  const { pinching, pinchHandlers } = usePinchZoom((delta) => onZoom(delta))
   const [animationsEnabled, setAnimationsEnabled] = useState(() => {
     try {
       return localStorage.getItem('minesweeper-animations') !== 'false'
@@ -31,10 +37,14 @@ export default function Board({ board, status, onReveal, onFlag, quickFlag, hint
       <button className="animation-toggle" onClick={toggleAnimations} aria-pressed={animationsEnabled}>
         Animations: {animationsEnabled ? 'On' : 'Off'}
       </button>
-      <div className="board-clip">
+      <button className={`mobile-quick-flag ${quickFlag ? 'selected' : ''}`} onClick={() => onToggleQuickFlag(!quickFlag)} aria-pressed={quickFlag} title="Toggle Quick Flag">
+        <QuickFlag label="Quick Flag" /> {quickFlag ? 'Flag mode on' : 'Quick Flag'}
+      </button>
+      {board[0]?.length > 20 && <p className="wide-board-hint">Rotate your phone or zoom out for the full board</p>}
+      <div className="board-clip" ref={setScrollElement} {...pinchHandlers}>
         <div className={`board ${status === 'won' ? 'board-won' : ''}`} onWheel={(event) => {
           if (event.ctrlKey) { event.preventDefault(); onZoom(event.deltaY > 0 ? -10 : 10) }
-        }} style={{ '--cols': board[0]?.length, '--cell-size': `${32 * zoom / 100}px` }}>
+        }} style={{ '--cols': board[0]?.length, '--cell-size': cellSize }}>
           {board.flat().map((cell) => (
             <Cell
               key={`${cell.row}-${cell.column}`}
@@ -47,6 +57,7 @@ export default function Board({ board, status, onReveal, onFlag, quickFlag, hint
               animationsEnabled={animationsEnabled}
               revealDepth={getRevealDepth(cell.row, cell.column)}
               mineIndex={getMineIndex(mineIndexes.get(`${cell.row}-${cell.column}`) || 0)}
+              pinching={pinching}
             />
           ))}
         </div>

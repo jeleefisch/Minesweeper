@@ -137,13 +137,13 @@ export default function GameOverModal({ result, stats, onClose, onReplay, onChan
     if (replayStep >= steps.length) setReplayStep(0)
     setReplaying((value) => !value)
   }
-  return <div className="modal-backdrop"><section className="game-modal" role="dialog" aria-modal="true" tabIndex="-1" ref={dialogRef}>
+  return <div className="modal-backdrop" onClick={(event) => { if (event.target === event.currentTarget) onClose() }}><section className="game-modal" role="dialog" aria-modal="true" tabIndex="-1" ref={dialogRef}>
     <button className="modal-close" onClick={onClose} title="Close" aria-label="Close"><Close /></button>
     <h2>{result.status === 'won' ? 'WIN' : 'GAME OVER'}</h2>
     <p className="modal-time">{formatTime(result.time)} · {result.difficultyLabel}</p>
     <div className="result-grid"><span>Correct flags <strong>{result.board.flat().filter((cell) => cell.isMine && cell.isFlagged).length}/{result.mines}</strong></span><span>Cells revealed <strong>{totalSafe ? Math.round((revealedCount / totalSafe) * 100) : 100}%</strong></span><span>Hints used <strong>{result.hints}</strong></span><span>Streak <strong>{stats.currentStreak}</strong></span></div>
     {result.newBest && <p className="new-best">New best time!</p>}{result.hints > 0 && <p className="modal-note">Hints count toward wins and streaks, but not best time.</p>}
-    {result.status === 'won' && <div className="leaderboard-entry"><label>Player name <input maxLength="16" value={name} onChange={(event) => setName(event.target.value)} /></label><button onClick={() => onSaveScore(name)}>Save score</button>{leaderboard.rank && <strong>New leaderboard entry: #{leaderboard.rank}</strong>}</div>}
+    {result.status === 'won' && <div className="leaderboard-entry"><label>Player name <input maxLength="16" autoComplete="off" autoCapitalize="words" enterKeyHint="done" value={name} onChange={(event) => setName(event.target.value)} /></label><button onClick={() => onSaveScore(name)}>Save score</button>{leaderboard.rank && <strong>New leaderboard entry: #{leaderboard.rank}</strong>}</div>}
     <svg className="board-map" viewBox={`0 0 ${map[0].length} ${map.length}`} shapeRendering="crispEdges">{map.map((line, row) => line.map((cell, column) => <rect key={`${row}-${column}`} x={column} y={row} width="1" height="1" className={cell.isMine ? 'map-mine' : cell.isRevealed ? 'map-revealed' : 'map-hidden'} />))}</svg>
     {steps.length > 0 && <div className="replay-controls">
       <div className="modal-actions"><button onClick={toggleReplay} title="Play or pause replay" aria-label="Play or pause replay">{replaying ? <Pause /> : <Play />}</button><button onClick={() => { setReplayStep(0); setReplaying(false) }} title="Restart replay" aria-label="Restart replay"><Refresh /></button><button onClick={() => setSpeed((value) => value === 4 ? 1 : value * 2)} title="Replay speed">Speed {speed}x</button></div>

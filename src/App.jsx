@@ -14,6 +14,12 @@ import useLeaderboard from './hooks/useLeaderboard'
 import LeaderboardModal from './components/LeaderboardModal'
 import './App.css'
 
+const themeColors = {
+  'pastel-purple': '#eadff7',
+  'classic-gray': '#c0c0c0',
+  'classic-green': '#dce8c8',
+}
+
 function App() {
   const [difficulty, setDifficulty] = useState('easy')
   const [theme, setTheme] = useLocalStorage('minesweeper-theme', 'classic-green')
@@ -26,6 +32,16 @@ function App() {
   const zoom = useZoom()
   const leaderboard = useLeaderboard()
   const previousResult = useRef(null)
+
+  useEffect(() => {
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColors[theme] || themeColors['classic-green'])
+  }, [theme])
+
+  useEffect(() => {
+    const modalOpen = Boolean(modalResult || leaderboardOpen)
+    document.body.classList.toggle('modal-open', modalOpen)
+    return () => document.body.classList.remove('modal-open')
+  }, [leaderboardOpen, modalResult])
 
   useEffect(() => {
     if (!game.finishedGame || previousResult.current === game.finishedGame.id) return
@@ -106,6 +122,7 @@ function App() {
             onReveal={game.reveal}
             onFlag={game.toggleFlag}
             quickFlag={game.quickFlag}
+            onToggleQuickFlag={game.setQuickFlag}
             hintCell={game.hintCell}
             zoom={zoom.zoom}
             onZoom={zoom.changeZoom}

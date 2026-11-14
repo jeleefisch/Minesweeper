@@ -1,1 +1,36 @@
-html { background:#10131c; } body { margin:0; min-width:320px; } button,input,select { font:inherit; }
+html { background: #dce8c8; }
+body {
+  margin: 0;
+  min-width: 320px;
+  overscroll-behavior: contain;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button,
+input,
+select,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible) {
+  outline: none;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 2px;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
