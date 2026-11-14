@@ -1,5 +1,13 @@
 const CACHE = 'minesweeper-assets-v2'
 
+const networkFirst = (request) => fetch(request).then((response) => {
+  if (response.ok && new URL(request.url).origin === self.location.origin) {
+    const copy = response.clone()
+    caches.open(CACHE).then((cache) => cache.put(request, copy))
+  }
+  return response
+}).catch(() => caches.match(request).then((cached) => cached || caches.match('/index.html')))
+
 self.addEventListener('install', () => {
   self.skipWaiting()
 })
@@ -15,28 +23,14 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return
 
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request).then((response) => {
-        if (response.ok) {
-          const copy = response.clone()
-          caches.open(CACHE).then((cache) => {
-            cache.put(event.request, copy)
-            cache.put('/index.html', response.clone())
-          })
-        }
-        return response
-      }).catch(() => caches.match(event.request).then((cached) => cached || caches.match('/index.html'))),
-    )
+  const requestUrl = new URL(event.request.url)
+  const isNavigation = event.request.mode === 'navigate' || requestUrl.pathname === '/index.html'
+  if (isNavigation) {
+    event.respondWith(networkFirst(event.request))
     return
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
-      if (!response.ok || new URL(event.request.url).origin !== self.location.origin) return response
-      const copy = response.clone()
-      caches.open(CACHE).then((cache) => cache.put(event.request, copy))
-      return response
-    })),
-  )
+  // Hashed assets are network-first too, so a deploy can never serve an old chunk
+  // before checking whether the new file exists.
+  event.respondWith(networkFirst(event.request))
 })
