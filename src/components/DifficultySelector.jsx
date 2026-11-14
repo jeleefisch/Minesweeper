@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const presets = [['easy', 'Easy'], ['medium', 'Medium'], ['hard', 'Hard'], ['custom', 'Custom']]
+const presets = [['easy', 'Beginner'], ['medium', 'Intermediate'], ['hard', 'Expert'], ['custom', 'Custom']]
 
 export default function DifficultySelector({ value, customSettings, onChange, onCustomChange }) {
   const [draft, setDraft] = useState(customSettings)

@@ -2,6 +2,21 @@ import { floodReveal, getNeighbors } from './board.js'
 
 const keyFor = (row, column) => `${row}-${column}`
 
+export const findSafeMove = (board) => {
+  for (let row = 0; row < board.length; row += 1) {
+    for (let column = 0; column < board[row].length; column += 1) {
+      const cell = board[row][column]
+      if (!cell.isRevealed || !cell.adjacent) continue
+      const neighbors = getNeighbors(row, column, board.length, board[0].length)
+      const flagged = neighbors.filter(([r, c]) => board[r][c].isFlagged).length
+      if (flagged !== cell.adjacent) continue
+      const safe = neighbors.find(([r, c]) => !board[r][c].isRevealed && !board[r][c].isFlagged)
+      if (safe) return { row: safe[0], column: safe[1] }
+    }
+  }
+  return null
+}
+
 export const isSolvable = (board, startRow, startColumn) => {
   let simulation = floodReveal(board, startRow, startColumn)
   const knownMines = new Set()
