@@ -1,14 +1,11 @@
 import { Hint, Moon, QuickFlag, Sun, Trophy, Volume, VolumeOff } from './icons/Icons'
-import FaceCool from './icons/FaceCool'
-import FaceDead from './icons/FaceDead'
-import FaceHappy from './icons/FaceHappy'
 
 export default function Header({
   flags, mines, time, status, bestTime, onRestart, muted, onToggleMute,
   noGuess, onToggleNoGuess, noGuessAllowed = true, noGuessWarning, generationMessage, quickFlag,
   onToggleQuickFlag, hints, onHint, hintMessage, onLeaderboard, mode, onToggleMode,
 }) {
-  const face = status === 'won' ? <FaceCool label="Won" /> : status === 'lost' ? <FaceDead label="Lost" /> : <FaceHappy label="Playing" />
+  const face = status === 'won' ? '😎' : status === 'lost' ? '😵' : '🙂'
   return (
     <header className="game-header">
       <div className="counter"><span>MINES</span><strong>{String(Math.max(0, mines - flags)).padStart(3, '0')}</strong></div>

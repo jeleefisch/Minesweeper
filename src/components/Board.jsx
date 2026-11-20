@@ -25,33 +25,11 @@ export default function Board({ board, status, onReveal, onFlag, quickFlag, onTo
       window.removeEventListener('resize', updateOverflow)
     }
   }, [scrollElement, cellSize])
-  const [animationsEnabled, setAnimationsEnabled] = useState(() => {
-    try {
-      return localStorage.getItem('minesweeper-animations') !== 'false'
-    } catch {
-      return true
-    }
-  })
   const mineIndexes = new Map(
     board.flat().filter((cell) => cell.isMine).map((cell, index) => [`${cell.row}-${cell.column}`, index]),
   )
-  const boardAnimationsEnabled = animationsEnabled && board.length * (board[0]?.length || 0) <= 1000
-
-  const toggleAnimations = () => {
-    const nextValue = !animationsEnabled
-    setAnimationsEnabled(nextValue)
-    try {
-      localStorage.setItem('minesweeper-animations', String(nextValue))
-    } catch {
-      // The visual preference still applies for this session if storage is unavailable.
-    }
-  }
-
   return (
-    <div className={`board-shell ${boardAnimationsEnabled ? '' : 'animations-off'}`}>
-      <button className="animation-toggle" onClick={toggleAnimations} aria-pressed={animationsEnabled}>
-        Animations: {boardAnimationsEnabled ? 'On' : 'Off'}
-      </button>
+    <div className="board-shell">
       <button className={`mobile-quick-flag ${quickFlag ? 'selected' : ''}`} onClick={() => onToggleQuickFlag(!quickFlag)} aria-pressed={quickFlag} title="Toggle Quick Flag">
         <QuickFlag label="Quick Flag" /> {quickFlag ? 'Flag mode on' : 'Quick Flag'}
       </button>
@@ -78,7 +56,6 @@ export default function Board({ board, status, onReveal, onFlag, quickFlag, onTo
               onFlag={onFlag}
               quickFlag={quickFlag}
               hintCell={hintCell}
-              animationsEnabled={boardAnimationsEnabled}
               revealDepth={getRevealDepth(cell.row, cell.column)}
               mineIndex={getMineIndex(mineIndexes.get(`${cell.row}-${cell.column}`) || 0)}
               pinching={pinching}

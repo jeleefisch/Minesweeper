@@ -42,8 +42,7 @@ export default function GameOverModal({ result, stats, onClose, onReplay, onChan
   const steps = useMemo(() => (Array.isArray(result.moveLog) ? result.moveLog : []), [result.moveLog])
   const animationsAllowed = useMemo(() => {
     try {
-      return localStorage.getItem('minesweeper-animations') !== 'false'
-        && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      return !window.matchMedia('(prefers-reduced-motion: reduce)').matches
     } catch {
       return true
     }

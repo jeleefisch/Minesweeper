@@ -115,7 +115,7 @@ function App() {
     <main className="app" data-theme={theme} data-mode={mode}>
       <section className="game-shell" onContextMenu={preventContextMenu}>
         <div className="topline">
-          <div><p className="eyebrow">Classic puzzle</p><h1>Minesweeper</h1></div>
+          <div><p className="eyebrow">jellyfish that doesn't sting</p><h1>Minesweeper</h1></div>
           <div className="top-controls"><ThemeSwitcher value={theme} onChange={setTheme} /></div>
         </div>
         <StatsHeader stats={stats} difficulty={difficulty} onReset={() => {

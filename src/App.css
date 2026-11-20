@@ -372,26 +372,6 @@ input {
   font-weight: 800;
 }
 
-.animation-toggle {
-  display: block;
-  margin: 0 0 6px auto;
-  border: 1px solid var(--border);
-  border-radius: 0;
-  padding: 5px 8px;
-  background: transparent;
-  color: var(--muted);
-  font-size: .7rem;
-  cursor: pointer;
-  min-height: 44px;
-  transition: color 120ms ease, background-color 120ms ease;
-}
-
-.animation-toggle:hover,
-.animation-toggle[aria-pressed="false"] {
-  color: var(--text);
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-}
-
 .board {
   display: grid;
   grid-template-columns: repeat(var(--cols), var(--cell-size));
@@ -626,15 +606,6 @@ input {
   border-left: 2px solid #777;
   border-right: 2px solid #fff;
   border-bottom: 2px solid #fff;
-}
-
-.animations-off .cell,
-.animations-off .cell-content,
-.animations-off .hint,
-.animations-off .quick-flag {
-  animation: none !important;
-  transition: background-color 100ms ease, color 100ms ease !important;
-  will-change: auto !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

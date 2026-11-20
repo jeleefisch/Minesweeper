@@ -4,7 +4,7 @@ import useLongPress from '../hooks/useLongPress'
 import { Flag, Mine } from './icons/Icons'
 import { preventContextMenu } from '../utils/dom'
 
-function Cell({ cell, status, onReveal, onFlag, quickFlag = false, hintCell, revealDepth = 0, mineIndex = 0, animationsEnabled = true, pinching = false }) {
+function Cell({ cell, status, onReveal, onFlag, quickFlag = false, hintCell, revealDepth = 0, mineIndex = 0, pinching = false }) {
   const lastTap = useRef(0)
   const [pressing, setPressing] = useState(false)
   const origin = getRevealOrigin()
@@ -36,7 +36,6 @@ function Cell({ cell, status, onReveal, onFlag, quickFlag = false, hintCell, rev
     hintCell?.row === cell.row && hintCell?.column === cell.column ? 'hint' : '',
     quickFlag && !cell.isRevealed ? 'quick-flag' : '',
     pressing ? 'pressing' : '',
-    !animationsEnabled ? 'animation-disabled' : '',
   ].filter(Boolean).join(' ')
 
   const handleTap = (event) => {
