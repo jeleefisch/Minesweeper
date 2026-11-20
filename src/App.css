@@ -12,6 +12,7 @@
 
 [data-theme="pastel-purple"] {
   --bg: #eadff7; --panel: #fbf7ff; --text: #482568; --muted: #8768a2;
+  --gradient-a: #eadff7; --gradient-b: #cdb8f0; --gradient-c: #f7c9d8; --gradient-d: #a9d8ef;
   --accent: #9c5cb7; --border: #cdb8f0; --tile-a: #d9c7f5; --tile-b: #cdb8f0;
   --revealed-a: #f4ecff; --revealed-b: #e9dcfb; --mine: #d875a7; --button: #f0e5fb;
   --number-1: #1976d2; --number-2: #388e3c; --number-3: #d32f2f; --number-4: #7b1fa2;
@@ -20,6 +21,7 @@
 
 [data-theme="classic-gray"] {
   --bg: #8d8d8d; --panel: #c0c0c0; --text: #111; --muted: #444; --accent: #000080; --border: #808080;
+  --gradient-a: #d7d7d7; --gradient-b: #9a9a9a; --gradient-c: #b8c7d4; --gradient-d: #cfc6a8;
   --tile-a: #c0c0c0; --tile-b: #c0c0c0; --revealed-a: #bdbdbd; --revealed-b: #bdbdbd;
   --mine: #d9534f; --button: #c0c0c0; --number-1: #0000ff; --number-2: #008000; --number-3: #ff0000;
   --number-4: #000080; --number-5: #800000; --number-6: #008080; --number-7: #000; --number-8: #808080;
@@ -27,6 +29,7 @@
 
 [data-theme="classic-green"] {
   --bg: #dce8c8; --panel: #f4f1e7; --text: #3d4931; --muted: #66745a; --accent: #557a18; --border: #c5d0b4;
+  --gradient-a: #dce8c8; --gradient-b: #b9dda0; --gradient-c: #f0d9a6; --gradient-d: #a8d0d6;
   --tile-a: #aad751; --tile-b: #a2d149; --revealed-a: #e5c29f; --revealed-b: #d7b899;
   --mine: #e57373; --button: #e5c29f; --number-1: #1976d2; --number-2: #388e3c; --number-3: #d32f2f;
   --number-4: #7b1fa2; --number-5: #ff8f00; --number-6: #0097a7; --number-7: #424242; --number-8: #757575;
@@ -34,6 +37,7 @@
 
 [data-mode="dark"][data-theme="pastel-purple"] {
   --bg: #241d2d; --panel: #30243b; --text: #f3eaff; --muted: #c1a9d8;
+  --gradient-a: #241d2d; --gradient-b: #49315e; --gradient-c: #3f2948; --gradient-d: #24384b;
   --accent: #d29be8; --border: #6f4f82; --tile-a: #6f568b; --tile-b: #624a7d;
   --revealed-a: #4a3b58; --revealed-b: #40334d; --mine: #b95d8b; --button: #443250;
   --number-1: #72b8ff; --number-2: #72d681; --number-3: #ff7777; --number-4: #d58cff;
@@ -42,6 +46,7 @@
 
 [data-mode="dark"][data-theme="classic-gray"] {
   --bg: #202020; --panel: #343434; --text: #f2f2f2; --muted: #c4c4c4; --accent: #8ca8ff; --border: #666;
+  --gradient-a: #202020; --gradient-b: #454545; --gradient-c: #2f3d48; --gradient-d: #4a4640;
   --tile-a: #4b4b4b; --tile-b: #4b4b4b; --revealed-a: #383838; --revealed-b: #383838;
   --mine: #c95d59; --button: #454545; --number-1: #69a8ff; --number-2: #71d982; --number-3: #ff6b6b;
   --number-4: #9db5ff; --number-5: #e6a0a0; --number-6: #69dddd; --number-7: #fff; --number-8: #c6c6c6;
@@ -49,6 +54,7 @@
 
 [data-mode="dark"][data-theme="classic-green"] {
   --bg: #182017; --panel: #273124; --text: #eef7e7; --muted: #b8c8ad; --accent: #9bc85c; --border: #536646;
+  --gradient-a: #182017; --gradient-b: #30442a; --gradient-c: #4b4230; --gradient-d: #26434a;
   --tile-a: #55752d; --tile-b: #4d6b29; --revealed-a: #66503a; --revealed-b: #5b4734;
   --mine: #b85858; --button: #3b4934; --number-1: #72b8ff; --number-2: #72d681; --number-3: #ff7777;
   --number-4: #d58cff; --number-5: #ffc15c; --number-6: #55d5e0; --number-7: #eeeeee; --number-8: #c0c0c0;
@@ -59,6 +65,9 @@
 }
 
 .app {
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
   min-height: 100vh;
   min-height: 100dvh;
   padding: 32px 16px;
@@ -66,12 +75,46 @@
   padding-right: max(16px, env(safe-area-inset-right));
   padding-bottom: max(32px, env(safe-area-inset-bottom));
   padding-left: max(16px, env(safe-area-inset-left));
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
+.app::before {
+  position: fixed;
+  z-index: 0;
+  inset: -18%;
+  width: 136%;
+  height: 136%;
+  background:
+    radial-gradient(circle at 18% 24%, var(--gradient-c) 0 16%, transparent 38%),
+    radial-gradient(circle at 82% 72%, var(--gradient-d) 0 14%, transparent 36%),
+    linear-gradient(120deg, var(--gradient-a), var(--gradient-b), var(--gradient-c), var(--gradient-d));
+  background-size: 145% 145%;
+  content: '';
+  pointer-events: none;
+  animation: ambient-gradient 18s ease-in-out infinite alternate;
+  will-change: background-position, transform;
+}
+
+@keyframes ambient-gradient {
+  0% {
+    background-position: 0% 20%;
+    transform: translate3d(-1.5%, -1%, 0) rotate(-1deg) scale(1.03);
+  }
+  50% {
+    background-position: 100% 55%;
+    transform: translate3d(1.5%, 1%, 0) rotate(1deg) scale(1.06);
+  }
+  100% {
+    background-position: 35% 100%;
+    transform: translate3d(-1%, 1.5%, 0) rotate(-0.5deg) scale(1.04);
+  }
+}
+
 .game-shell {
+  position: relative;
+  z-index: 1;
   width: min(940px, 100%);
   margin: auto;
   padding: 26px;
