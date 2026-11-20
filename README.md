@@ -41,6 +41,8 @@ Open http://localhost:5173. To test on your phone (same Wi-Fi):
 npm run dev -- --host
 ```
 
+Or Play Online! https://minesweeplee.netlify.app
+
 ## Build
 
 ```bash
